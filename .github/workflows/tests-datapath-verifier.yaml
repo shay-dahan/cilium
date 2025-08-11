@@ -115,7 +115,7 @@ jobs:
             ci-kernel: 'netnext'
             image: 'complexity-test-ci'
           # renovate: datasource=docker depName=quay.io/lvh-images/complexity-test
-          - kernel: 'improve-tnum-branch-taken-20250811.185626'
+          - kernel: 'improve-tnum-branch-taken-20250811.212404'
             ci-kernel: 'netnext'
             image: 'complexity-test-ci'
     timeout-minutes: 60
