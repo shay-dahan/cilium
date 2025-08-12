@@ -1,9 +1,19 @@
+permissions:
+  contents: read
+  actions: read
 name: Approve Renovate PR
 
 on:
   pull_request:
     types:
     - review_requested
+  workflow_dispatch:
+    inputs:
+      fastci:
+        description: 'Run FastCI'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   pre-approve:
