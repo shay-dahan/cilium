@@ -27,10 +27,19 @@ on:
       environment:
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      fastci:
+        type: boolean
+        description: 'Enable FastCI (JFrog Unified Observability)'
+        required: false
+        default: false
 
 permissions:
   # To be able to access the repository with `actions/checkout`
   contents: read
+  # Required for FastCI integration to read workflow details
+  actions: read
   # Required to generate OIDC tokens for `sigstore/cosign-installer` authentication
   id-token: write
 
@@ -53,6 +62,12 @@ jobs:
           # This workflow is supposed to run only on pull_request_target context, but in case workflow call is made from a push context we still keep the default to default_branch
           ref: ${{ github.base_ref || github.event.repository.default_branch }}
           persist-credentials: false
+      - name: FastCI
+        if: inputs.fastci == 'true'
+        uses: jfrog-fastci/fastci@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          fastci_otel_token: ${{ vars.FASTCI_TOKEN }}
 
       - name: Cleanup Disk space in runner
         uses: ./.github/actions/disk-cleanup
@@ -90,6 +105,12 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: FastCI
+        if: inputs.fastci == 'true'
+        uses: jfrog-fastci/fastci@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          fastci_otel_token: ${{ vars.FASTCI_TOKEN }}
 
       - name: Set-up git
         run: |
