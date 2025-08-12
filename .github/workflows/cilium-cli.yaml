@@ -1,10 +1,20 @@
 name: Cilium CLI tests
 
+permissions:
+  contents: read
+  actions: read
+
 on:
   pull_request:
     paths-ignore:
       - 'Documentation/**'
       - 'test/**'
+  workflow_dispatch:
+    inputs:
+      fastci:
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -17,6 +27,12 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: FastCI
+        if: inputs.fastci == 'true'
+        uses: jfrog-fastci/fastci@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          fastci_otel_token: ${{ vars.FASTCI_TOKEN }}
 
       - name: Setup go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
@@ -25,7 +41,6 @@ jobs:
           # renovate: datasource=golang-version depName=go
           go-version: 1.24.6
 
-      # Load Golang cache build from GitHub
       - name: Load Golang cache build from GitHub
         uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         id: go-cache
