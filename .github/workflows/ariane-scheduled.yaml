@@ -6,13 +6,18 @@ on:
   # to the branch hourModulo value in the matrix
   schedule:
     - cron: '0 */1 * * *'
-
+  workflow_dispatch:
+    inputs:
+      fastci:
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   # To be able to access the repository with actions/checkout
   contents: read
   # To trigger workflows via workflow_dispatch
-  actions: write
+  actions: read
 
 jobs:
   ariane-scheduled:
@@ -36,7 +41,12 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
           persist-credentials: false
-
+      - name: FastCI
+        if: inputs.fastci == 'true'
+        uses: jfrog-fastci/fastci@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          fastci_otel_token: ${{ secrets.FASTCI_TOKEN }}
       - name: Manually run Ariane workflows from the branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
